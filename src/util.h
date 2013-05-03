@@ -496,6 +496,11 @@ inline void SetThreadPriority(int nPriority)
 }
 #else
 
+#ifndef PRIO_MAX
+// Some SunOS'es don't define PRIO_MAX. Usual value is 20.
+#define PRIO_MAX 20
+#endif
+
 #define THREAD_PRIORITY_LOWEST          PRIO_MAX
 #define THREAD_PRIORITY_BELOW_NORMAL    2
 #define THREAD_PRIORITY_NORMAL          0
