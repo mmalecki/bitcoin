@@ -185,7 +185,12 @@ bool static Socks4(const CService &addrDest, SOCKET& hSocket)
     char* pszSocks4 = pszSocks4IP;
     int nSize = sizeof(pszSocks4IP);
 
-    int ret = send(hSocket, pszSocks4, nSize, MSG_NOSIGNAL);
+    int ret;
+#ifdef MSG_NOSIGNAL
+    ret = send(hSocket, pszSocks4, nSize, MSG_NOSIGNAL);
+#else
+    ret = send(hSocket, pszSocks4, nSize, 0);
+#endif
     if (ret != nSize)
     {
         closesocket(hSocket);
@@ -219,7 +224,12 @@ bool static Socks5(string strDest, int port, SOCKET& hSocket)
     char pszSocks5Init[] = "\5\1\0";
     ssize_t nSize = sizeof(pszSocks5Init) - 1;
 
-    ssize_t ret = send(hSocket, pszSocks5Init, nSize, MSG_NOSIGNAL);
+    ssize_t ret;
+#ifdef MSG_NOSIGNAL
+    ret = send(hSocket, pszSocks5Init, nSize, MSG_NOSIGNAL);
+#else
+    ret = send(hSocket, pszSocks5Init, nSize, 0);
+#endif
     if (ret != nSize)
     {
         closesocket(hSocket);
@@ -242,7 +252,11 @@ bool static Socks5(string strDest, int port, SOCKET& hSocket)
     strSocks5 += strDest;
     strSocks5 += static_cast<char>((port >> 8) & 0xFF);
     strSocks5 += static_cast<char>((port >> 0) & 0xFF);
+#ifdef MSG_NOSIGNAL
     ret = send(hSocket, strSocks5.c_str(), strSocks5.size(), MSG_NOSIGNAL);
+#else
+    ret = send(hSocket, strSocks5.c_str(), strSocks5.size(), 0);
+#endif
     if (ret != (ssize_t)strSocks5.size())
     {
         closesocket(hSocket);

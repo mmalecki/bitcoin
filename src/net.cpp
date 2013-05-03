@@ -297,7 +297,11 @@ bool GetMyExternalIP2(const CService& addrConnect, const char* pszGet, const cha
     if (!ConnectSocket(addrConnect, hSocket))
         return error("GetMyExternalIP() : connection to %s failed", addrConnect.ToString().c_str());
 
+#ifdef MSG_NOSIGNAL
     send(hSocket, pszGet, strlen(pszGet), MSG_NOSIGNAL);
+#else
+    send(hSocket, pszGet, strlen(pszGet), 0);
+#endif
 
     string strLine;
     while (RecvLine(hSocket, strLine))
@@ -707,7 +711,12 @@ void SocketSendData(CNode *pnode)
     while (it != pnode->vSendMsg.end()) {
         const CSerializeData &data = *it;
         assert(data.size() > pnode->nSendOffset);
-        int nBytes = send(pnode->hSocket, &data[pnode->nSendOffset], data.size() - pnode->nSendOffset, MSG_NOSIGNAL | MSG_DONTWAIT);
+        int nBytes;
+#ifdef MSG_NOSIGNAL
+        nBytes = send(pnode->hSocket, &data[pnode->nSendOffset], data.size() - pnode->nSendOffset, MSG_NOSIGNAL | MSG_DONTWAIT);
+#else
+        nBytes = send(pnode->hSocket, &data[pnode->nSendOffset], data.size() - pnode->nSendOffset, MSG_DONTWAIT);
+#endif
         if (nBytes > 0) {
             pnode->nLastSend = GetTime();
             pnode->nSendBytes += nBytes;
