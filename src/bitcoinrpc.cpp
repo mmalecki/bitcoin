@@ -72,7 +72,7 @@ void RPCTypeCheck(const Array& params,
 }
 
 void RPCTypeCheck(const Object& o,
-                  const map<string, Value_type>& typesExpected,
+                  const std::map<string, Value_type>& typesExpected,
                   bool fAllowNull)
 {
     BOOST_FOREACH(const PAIRTYPE(string, Value_type)& t, typesExpected)
@@ -126,7 +126,7 @@ string CRPCTable::help(string strCommand) const
 {
     string strRet;
     set<rpcfn_type> setDone;
-    for (map<string, const CRPCCommand*>::const_iterator mi = mapCommands.begin(); mi != mapCommands.end(); ++mi)
+    for (std::map<string, const CRPCCommand*>::const_iterator mi = mapCommands.begin(); mi != mapCommands.end(); ++mi)
     {
         const CRPCCommand *pcmd = mi->second;
         string strMethod = mi->first;
@@ -273,7 +273,7 @@ CRPCTable::CRPCTable()
 
 const CRPCCommand *CRPCTable::operator[](string name) const
 {
-    map<string, const CRPCCommand*>::const_iterator it = mapCommands.find(name);
+    std::map<string, const CRPCCommand*>::const_iterator it = mapCommands.find(name);
     if (it == mapCommands.end())
         return NULL;
     return (*it).second;
@@ -286,7 +286,7 @@ const CRPCCommand *CRPCTable::operator[](string name) const
 // and to be compatible with other JSON-RPC implementations.
 //
 
-string HTTPPost(const string& strMsg, const map<string,string>& mapRequestHeaders)
+string HTTPPost(const string& strMsg, const std::map<string,string>& mapRequestHeaders)
 {
     ostringstream s;
     s << "POST / HTTP/1.1\r\n"
@@ -410,7 +410,7 @@ int ReadHTTPStatus(std::basic_istream<char>& stream, int &proto)
     return atoi(vWords[1].c_str());
 }
 
-int ReadHTTPHeaders(std::basic_istream<char>& stream, map<string, string>& mapHeadersRet)
+int ReadHTTPHeaders(std::basic_istream<char>& stream, std::map<string, string>& mapHeadersRet)
 {
     int nLen = 0;
     loop
@@ -435,7 +435,7 @@ int ReadHTTPHeaders(std::basic_istream<char>& stream, map<string, string>& mapHe
     return nLen;
 }
 
-int ReadHTTPMessage(std::basic_istream<char>& stream, map<string,
+int ReadHTTPMessage(std::basic_istream<char>& stream, std::map<string,
                     string>& mapHeadersRet, string& strMessageRet,
                     int nProto)
 {
@@ -468,7 +468,7 @@ int ReadHTTPMessage(std::basic_istream<char>& stream, map<string,
     return HTTP_OK;
 }
 
-bool HTTPAuthorized(map<string, string>& mapHeaders)
+bool HTTPAuthorized(std::map<string, string>& mapHeaders)
 {
     string strAuth = mapHeaders["authorization"];
     if (strAuth.substr(0,6) != "Basic ")
@@ -930,7 +930,7 @@ void ServiceConnection(AcceptedConnection *conn)
     while (fRun)
     {
         int nProto = 0;
-        map<string, string> mapHeaders;
+        std::map<string, string> mapHeaders;
         string strRequest, strMethod, strURI;
 
         // Read HTTP request line
@@ -1061,7 +1061,7 @@ Object CallRPC(const string& strMethod, const Array& params)
 
     // HTTP basic authentication
     string strUserPass64 = EncodeBase64(mapArgs["-rpcuser"] + ":" + mapArgs["-rpcpassword"]);
-    map<string, string> mapRequestHeaders;
+    std::map<string, string> mapRequestHeaders;
     mapRequestHeaders["Authorization"] = string("Basic ") + strUserPass64;
 
     // Send request
@@ -1074,7 +1074,7 @@ Object CallRPC(const string& strMethod, const Array& params)
     int nStatus = ReadHTTPStatus(stream, nProto);
 
     // Receive HTTP reply message headers and body
-    map<string, string> mapHeaders;
+    std::map<string, string> mapHeaders;
     string strReply;
     ReadHTTPMessage(stream, mapHeaders, strReply, nProto);
 
