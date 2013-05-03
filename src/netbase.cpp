@@ -9,6 +9,7 @@
 #include "hash.h"
 
 #ifndef WIN32
+#include <fcntl.h> // required on Solaris
 #include <sys/fcntl.h>
 #endif
 
