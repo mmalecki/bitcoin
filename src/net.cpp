@@ -12,6 +12,9 @@
 
 #ifdef WIN32
 #include <string.h>
+#else
+#include <fcntl.h>
+#include <sys/fcntl.h>
 #endif
 
 #ifdef USE_UPNP
